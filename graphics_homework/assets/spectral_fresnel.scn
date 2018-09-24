@@ -1,0 +1,10 @@
+
+renderconfig default shaders/rtr-spectral-fresnel.vert shaders/rtr-spectral-fresnel.frag
+renderconfig skybox shaders/skybox.vert shaders/skybox.frag
+renderconfig shadowmap shaders/shadowmap.vert shaders/shadowmap.frag
+
+sunDirTo 0 1 0
+sunE0 1 1 1
+
+transform 3 0 0 0 0 3 0 0 0 0 3 0 0 0 0 1
+geometryGroup bunny.obj

@@ -1,0 +1,163 @@
+@font-face {
+    font-family: LinLibertine;
+    src: url("assets/fonts/LinLibertine_R.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: LinLibertine-bold;
+    font-weight: bold;
+    src: url("assets/fonts/LinLibertine_RB.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: LinLibertine-bolditalic;
+    font-weight: bold;
+    src: url("assets/fonts/LinLibertine_RBI.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: LinLibertine-italic;
+    src: url("assets/fonts/LinLibertine_RI.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: OSPDIN;
+    src: url("assets/fonts/OSP-DIN.ttf") format("truetype")
+}
+
+@font-face {
+    font-family: 'Essential PragmataPro';
+    src: url("assets/fonts/35DF06_0_0.ttf");
+}
+
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro');
+
+html {
+    display: table;
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media screen and (max-device-width: 480px) {
+    body {
+        -webkit-text-size-adjust: none;
+        /* font-size: 12pt; */
+    }
+}
+
+@media(min-width: 640px) {
+    body {
+        width: 640px;
+        font-size: 18pt;
+    }
+}
+
+a {
+    white-space: nowrap;
+}
+
+body {
+    display: table-cell;
+    vertical-align: top;
+    font-family: LinLibertine, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+}
+
+h1,
+h2,
+h3 {
+    line-height: 0.2em;
+}
+
+h1 {
+    font-family: LinLibertine-bold;
+    font-size: 1.314159em;
+}
+
+h2 {
+    font-family: LinLibertine-bolditalic;
+    font-size: 1.1em;
+}
+
+h3 {
+    font-family: LinLibertine-bold;
+    font-size: 1em;
+}
+
+em {
+    font-family: LinLibertine-italic;
+}
+
+/*
+ * #236192 Pantone Plus 647 C - Blue
+ * #ffcd00 Pantone Plus 116 C - Gold
+ * #ffffff White
+*/
+a {
+    color: inherit;
+    font-weight: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #efdbb2;
+}
+
+.uaf {
+    font-family: OSPDIN;
+    color: #ffcd00;
+    background: #236192;
+    border-radius: 5px;
+    margin: auto;
+    padding: 3px;
+    display: table;
+    width: 100%;
+    line-height: 1.5em;
+}
+
+.bluehr {
+    background: #236192;
+    height: 0.2em;
+    border: none;
+}
+
+.goldhr {
+    background: #ffcd00;
+    height: 0.2em;
+    border: none;
+}
+
+.centered {
+    text-align: center;
+    vertical-align: middle;
+}
+
+table {
+    /* width: 100%; */
+    border: blue;
+}
+
+td,
+th {
+    border-radius: 5px;
+    background: lightgrey;
+    padding: 3px;
+    color: #ffcd00;
+    background: #236192;
+    font-family: OSPDIN;
+}
+
+.log {
+    font-family: "Essential PragmataPro", "Source Code Pro", monospace;
+    font-size: 0.5em;
+    border-radius: 4px;
+    background: #efdbb2;
+}
+
+.desc {
+    border-radius: 4px;
+    background: #eeeeee;
+}

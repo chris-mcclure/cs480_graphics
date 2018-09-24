@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta name="description" content="Spring 2018 CS 481/681 Graphics Rendering homework site">
+    <meta name="robots" content="index/nofollow">
+    <meta name="author" content="Jonathan B. Metzgar">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="homeworks.js"></script>
+    <script>
+        let g_IsLocalHost = window.location.href.search("localhost") >= 0;
+        let g_PageTitle = "CS 481/681 Homeworks";
+        let g_PageAuthor = "Last name";
+        writeTitle(g_PageTitle, g_PageAuthor);
+    </script>
+    <title>CS 481/681 Graphics Rendering</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+
+<body>
+    <article>
+        <header>
+            <h1 class="uaf">
+                <a href="../../../index.html">CS 480/680 Computer Graphics Fundamentals</a>
+            </h1>
+            <h2>
+                <script>
+                    document.write(getSemester());
+                </script>
+            </h2>
+            <hr class="goldhr" />
+        </header>
+
+        <p>
+            <script>
+                document.write(getClassDescription());
+            </script>
+        </p>
+
+        <p style="font-size: 0.75em;">$$L_o(\mathbf{x} \rightarrow \omega_o) = L_e(\mathbf{x} \rightarrow \omega_o) +
+            \int_{\Omega}{f_r(\omega_i,
+            \omega_o)
+            L_i(\omega_i \rightarrow \mathbf{x}) (\omega_i \cdot \mathbf{n}) \, d\omega_i}$$</p>
+
+        <p>Sample Source Code:
+            <a href="cs-480-computer-graphics-fundamentals.zip">cs-480-computer-graphics-fundamentals.zip</a>
+        </p>
+
+        <table style="margin: auto;">
+            <tr>
+                <th>No.</th>
+                <th>Description</th>
+            </tr>
+            <script>
+                let urls = getProjectUrls()
+                let descs = getProjectDescs();
+                let count = getNumProjects();
+
+                for (let i = 0; i < count; i++) {
+                    document.write("<tr><td class=\"centered\">");
+                    document.write(i + 1);
+                    document.write("</td><td>");
+                    document.write("<a href=\"" + urls[i] + "\">");
+                    document.write(descs[i]);
+                    document.write("</a>");
+                    document.write("</td></tr>");
+                }
+            </script>
+        </table>
+
+        <hr class="goldhr" />
+        <p style="text-align: center;">
+            <script>
+                students = getStudents();
+                studentNames = getStudentNames();
+
+                if (g_IsLocalHost) {
+                    students.push("working");
+                    studentNames.push("i.m. working");
+                }
+                for (let i = 0; i < students.length; i++) {
+                    if (i != 0) document.write(" | ");
+                    document.write("<a style='white-space:nowrap;' href='" + students[i] + "/index.html'>" +
+                        studentNames[i] + "</a>");
+                }
+            </script>
+        </p>
+        <footer>
+            <hr class="bluehr" />
+        </footer>
+    </article>
+</body>
+
+</html>

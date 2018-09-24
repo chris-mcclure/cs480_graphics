@@ -1,0 +1,11 @@
+
+newmtl dragonmtl
+    Kd 1.0 0.84 0.0
+    Ks 0.878431 0.67451 0.556863
+
+    PBKdm 0.5
+    PBKsm 0.1
+    PBn2  1.5
+    PBk2  0.0
+    map_Kd_mix 0.0
+    map_Ks_mix 0.0

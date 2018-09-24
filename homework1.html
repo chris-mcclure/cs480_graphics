@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta name="description" content="Fall 2019 CS 481/681 Computer Graphics Fundamentals homework site">
+    <meta name="robots" content="index/nofollow">
+    <meta name="author" content="Jonathan B. Metzgar">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="homeworks.js"></script>
+    <script>
+        let g_IsLocalHost = window.location.href.search("localhost") >= 0 ? true : false;
+        let g_PageTitle = "CS 481/681 Homework X: Description";
+        let g_PageAuthor = "";
+        let loc = window.location.href.search(".html");
+        loc = parseInt(window.location.href.substr(loc - 1, 1));
+        let g_HomeworkNum = loc;
+        let g_ProjectName = getName(loc - 1);
+        writeTitle(g_PageTitle, g_PageAuthor);
+    </script>
+    <!-- <title>CS 481/681 Homework 5: Procedural Generation</title> -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <article>
+        <header>
+            <h1 class="uaf">
+                <!-- <a href="homeworks.html">CS 481/681 Homework 5: Procedural Generation</a> -->
+                <a href="index.html">
+                    <script>
+                        document.write(g_ProjectName);
+                    </script>
+                </a>
+            </h1>
+            <h2 style="font-size: 1em;">
+                <script>
+                    document.write(getSemester() + " | ");
+                    document.write(getClassName());
+                </script>
+            </h2>
+            <hr class="goldhr" />
+        </header>
+
+        <script>
+            let students = getStudents();
+            let studentNames = getStudentNames();
+            if (g_IsLocalHost) {
+                students.push("working");
+                studentNames.push("i.m. working");
+            }
+
+            let homeworkName = "homework" + g_HomeworkNum;
+
+            document.write("<center><table>");
+            let count = 3 * ((students.length / 3 | 0) + ((students.length % 3 != 0) ? 1 : 0));
+            //console.log(count);
+            for (let i = 0; i < count; i++) {
+                if (i % 3 == 0) {
+                    document.write("<tr><td align=\"center\">");
+                } else {
+                    document.write("<td align=\"center\">")
+                }
+
+                if (i < students.length) {
+                    let href = "<a href=\"" + students[i] + "/" + homeworkName + ".html\">";
+                    document.write("<table style=\"align:center;\"><tr><td align=\"center\">")
+                    document.write("<a href=\"" + students[i] + "/" + homeworkName + ".html\">")
+                    document.write("<img style='width: 6em;' src=\"" + students[i] + "/" + homeworkName +
+                        "-thumbnail.png\" /></a>")
+                    document.write("</td></tr><tr><td align=\"center\">");
+                    document.write(href + studentNames[i] + "</a>");
+                    document.write("</td></tr>");
+                    document.write("</td></tr></table>");
+                }
+
+                if (i % 3 == 2) {
+                    document.write("</td></tr>");
+                } else {
+                    document.write("</td>")
+                }
+            }
+            document.write("</table></center>");
+        </script>
+
+        <footer>
+            <hr class="bluehr" />
+            <script>
+                if (g_HomeworkNum > 1) document.write("<< <a href=\"homework" + (g_HomeworkNum - 1) +
+                    ".html\">Homework " + (g_HomeworkNum - 1) + "</a> | ");
+            </script>
+            <a href="index.html">Back to Index</a>
+            <script>
+                count = getNumProjects();
+                if (g_HomeworkNum < count) document.write("| >> <a href=\"homework" + (g_HomeworkNum + 1) +
+                    ".html\">Homework " + (g_HomeworkNum + 1) + "</a>");
+            </script>
+        </footer>
+    </article>
+</body>
+
+</html>

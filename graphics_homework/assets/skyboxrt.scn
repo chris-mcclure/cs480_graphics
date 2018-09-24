@@ -1,0 +1,9 @@
+
+sunDirTo 0 1 0
+sunE0 1 1 1
+enviroCube textures/hosek_wilkie_sky.png
+#enviroCube textures/forest_skybox.png
+#enviroCube textures/test_texture_cube.png
+
+transform 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1
+geometryGroup skybox.obj

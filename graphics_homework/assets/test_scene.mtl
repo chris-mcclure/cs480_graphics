@@ -1,0 +1,143 @@
+### WHITE DIFFUSE MTL ------------------------------------------------
+
+newmtl "whiteDiffuseMtl"
+
+Kd 1.0 1.0 1.0
+Ns 0.1
+
+### WHITE REFRACT MTL ------------------------------------------------
+newmtl "whiteRefractMtl"
+
+#Kd 1.0 0.4 0.6
+Kd 1.0 1.0 1.0
+ReflectFresnel 1.333
+ReflectGlossiness 0.55
+Ni 1.333
+Ns 10
+
+#map_Kd noise15-diffuse.png
+map_normal noise15-normal_lite.png
+#map_Kd 8012-diffuse.jpg
+#map_normal 8012-normal.jpg
+
+#PBKdm 0.95
+#PBKsm 0.05
+#PBior 1.333
+#PBmap special_pb_test.png
+#map_Kd special_pb_test.png
+
+#PBk 0
+#PBm 1
+
+#PBior 0.33
+#PBk   2.32
+##Kd 1.0 0.84 0.0
+
+#map_Kd test_texture.png
+
+
+### WHITE CERAMIC ----------------------------------------------------
+
+
+newmtl WhiteCeramic
+
+Kd 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+
+#PBm 0.9
+#PBior 1.5
+#PBk 0.0
+#PBKsm -0.91
+#PBKdm 1.0
+
+
+### TORUS KNOT -------------------------------------------------------
+
+
+newmtl "torusKnotMtl"
+ReflectFresnel 1.333
+ReflectGlossiness 0.55
+Kd 0.6 1.0 0.4
+Ns 500
+
+#PBm 0.0
+#PBk 0.0
+#PBKdm 0.75
+#PBKsm 1.0
+#PBior 1.4
+#PBmap special_pb_test.png
+
+map_normal 8012-normal.jpg
+map_Kd 8012-diffuse.jpg
+#map_normal noise15-normal_lite.png
+
+### BUNNYMTL ---------------------------------------------------------
+
+newmtl "bunnymtl"
+
+#Kd 1.0 1.0 1.0
+#Ns 0.9
+#PBKsm 0.2
+#PBm   0.05
+#PBKdm 0.5
+
+#PBior 0.76
+#PBk   2.46
+# Kd 0.725 0.55 0.40
+
+#PBior 0.33
+#PBk   2.32
+# Kd 1.0 0.84 0.0
+Ks 1.0 1.0 1.0
+
+
+#PBior 1.33
+#PBk   0.0
+#PBKsm -0.5
+#PBKdm 1.0
+Kd 0.729 0.212 0.192
+
+
+### METZGAR2MTL ------------------------------------------------------
+
+newmtl "metzgar2mtl"
+
+Kd 1.0 0.2 0.6
+Ns 0.95
+
+### DRAGONMTL --------------------------------------------------------
+
+newmtl "dragonmtl"
+
+#PBKsm 0.1
+#PBKdm 0.0
+#PBior 1.33
+#PBk   1.0
+#PBm   0.1
+
+#PBior 0.76
+#PBk   2.46
+Kd 0.725 0.55 0.40
+
+#PBior 0.33
+#PBk   2.32
+Kd 1.0 0.84 0.0
+Ks 0.878431 0.67451 0.556863
+
+ReflectFresnel 1.333
+ReflectGlossiness 0.5
+
+Kd 0.0 0.0 0.0
+
+### WRECKED TEAPOT ---------------------------------------------------
+
+newmtl "teapotmtl"
+Kd 1.0 1.0 1.0
+Ns 0.95
+
+### LIGHTS -----------------------------------------------------------
+
+newmtl "whiteLight"
+
+Ke 1.0 1.0 1.0
+

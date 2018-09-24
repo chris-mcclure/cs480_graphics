@@ -1,0 +1,7 @@
+
+sunDirTo 0 1 0
+sunE0 1 1 1
+
+transform 1 0 0 0 0 1 0 -3 0 0 1 0 0 0 0 1
+#geometryGroup sponza2.obj
+geometryGroup dragon.obj

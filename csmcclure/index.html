@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta name="description" content="Spring 2018 CS 481/681 Graphics Rendering homework site">
+    <meta name="robots" content="index/nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS 481/681 S18 Homeworks (Last name)</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="../homeworks.js"></script>
+    <script src="homework.js"></script>
+</head>
+
+<body>
+    <article>
+        <header>
+            <h1 class="uaf">
+                <a href="../index.html">
+                    <script>
+                        document.write(getClassName() + " Homeworks (" + getLastName() + ")");
+                    </script>
+                </a>
+            </h1>
+            <h2>
+                <script>
+                    document.write(getSemester());
+                </script>
+            </h2>
+            <hr class="goldhr" />
+        </header>
+
+        <table style="margin: auto;">
+            <tr>
+                <th>No.</th>
+                <th>Preview</th>
+                <th>Description</th>
+            </tr>
+            <script>
+                let projects = getProjectDescs();
+                let count = getNumProjects();
+                let style = "style='vertical-align: middle; text-align: center;'";
+
+                for (let i = 0; i < count; i++) {
+                    let a1 = "<a href=\"" + "homework" + (i + 1) + ".html\">"
+                    document.write("<tr>");
+                    document.write("<td " + style + ">" + (i + 1).toString() + "</td>");
+                    document.write("<td " + style + ">" + a1 + "<img style='width:6em' src=\"" + "homework" + (i +
+                            1) +
+                        "-thumbnail.png\" /></a></td>");
+                    document.write("<td>" + a1 + projects[i] + "</a></td>");
+                    document.write("</tr>");
+                }
+            </script>
+            <tr>
+        </table>
+
+        <footer>
+            <hr class="bluehr" />
+        </footer>
+    </article>
+
+</body>
+
+</html>
