@@ -10,22 +10,27 @@ enum MyImageFilterMode {
     NEAREST = 0,
     BILINEAR = 1,
     TRILINEAR = 2,
-    ANISOTROPIC = 3;
+    ANISOTROPIC = 3
 }
 
 class MyImage {
     pixels: Uint8ClampedArray;
+    private image: HTMLImageElement | null = null;
 
-    constructor(readonly width: number, readonly height: number, makePowerOfTwo: boolean = false) {
+    get loaded(): boolean { return (!this.image) ? false : this.image.complete; }
+    get width(): number { return this.width_; }
+    get height(): number { return this.height_; }
+
+    constructor(private width_: number, private height_: number, makePowerOfTwo: boolean = false) {
         if (makePowerOfTwo) {
-            this.width = 1 << ((0.5 + Math.log2(width)) | 0);
-            this.height = 1 << ((0.5 + Math.log2(height)) | 0);
+            this.width_ = 1 << ((0.5 + Math.log2(width_)) | 0);
+            this.height_ = 1 << ((0.5 + Math.log2(height_)) | 0);
         }
-        this.pixels = new Uint8ClampedArray(width * height * 4);
+        this.pixels = new Uint8ClampedArray(width_ * height_ * 4);
     }
 
     isCoordsInside(x: number, y: number): boolean {
-        if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+        if (x >= 0 && x < this.width_ && y >= 0 && y < this.height_) {
             return true;
         }
         return false;
@@ -46,7 +51,7 @@ class MyImage {
         if (!this.isCoordsInside(x, y)) {
             return;
         }
-        const addr = ((y | 0) * this.width + (x | 0)) << 2;
+        const addr = ((y | 0) * this.width_ + (x | 0)) << 2;
         this.pixels[addr + 0] = color.r;
         this.pixels[addr + 1] = color.g;
         this.pixels[addr + 2] = color.b;
@@ -57,7 +62,7 @@ class MyImage {
         if (!this.isCoordsInside(x, y)) {
             return new MyColor();
         }
-        const addr = ((y | 0) * this.width + (x | 0)) << 2;
+        const addr = ((y | 0) * this.width_ + (x | 0)) << 2;
         const r = this.pixels[addr + 0];
         const g = this.pixels[addr + 1];
         const b = this.pixels[addr + 2];
@@ -69,7 +74,7 @@ class MyImage {
     // otherwise returns the address to the rgba area in the pixels array
     getAddr(x: number, y: number): number {
         if (!this.isCoordsInside(x, y)) return -1;
-        return ((y | 0) * this.width + (x | 0)) << 2;
+        return ((y | 0) * this.width_ + (x | 0)) << 2;
     }
 
     static blit(
@@ -78,11 +83,9 @@ class MyImage {
         let deltaX = sw / dw;
         let deltaY = sh / dh;
         let srcy = sy;
-        let count = 0;
         for (let y = dy; y < dy + dh; y++) {
             let srcx = sx;
             for (let x = dx; x < dx + dw; x++) {
-                if (count++ > 1000000) return;
                 let daddr = dst.getAddr(x, y);
                 if (daddr < 0) continue;
                 let saddr = src.getAddr(srcx, srcy);
@@ -106,13 +109,44 @@ class MyImage {
         }
     }
 
+    load(url: string, callbackfn: (image: MyImage) => void) {
+        this.image = new Image();
+        let self = this;
+        this.image.addEventListener("load", (e) => {
+            // Once image is loaded, draw it to a canvas and read it back
+            // to get an ImageData class we can copy into pixels.
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+            if (self.image && ctx) {
+                canvas.width = self.image.width;
+                canvas.height = self.image.height;
+                ctx.drawImage(self.image, 0, 0);
+                let imageData = ctx.getImageData(0, 0, self.image.width, self.image.height);
+                self.width_ = imageData.width;
+                self.height_ = imageData.height;
+                self.pixels = imageData.data;
+                callbackfn(self);
+                hflog.log("Loaded " + url);
+            } else {
+                hflog.error("Failed to create 2d context");
+            }
+        });
+        this.image.addEventListener("abort", (e) => {
+            hflog.error("Could not load " + url + "(abort)");
+        });
+        this.image.addEventListener("error", (e) => {
+            hflog.error("Could not load " + url + "(error)");
+        });
+        this.image.src = url;
+    }
+
     createTexture(gl: WebGLRenderingContext,
         repeatMode: MyImageRepeatMode = MyImageRepeatMode.CLAMP_TO_EDGE,
         filterMode: MyImageFilterMode = MyImageFilterMode.NEAREST): WebGLTexture | null {
         let texture = gl.createTexture();
         if (!texture) return null;
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        let imageData = new ImageData(this.pixels, this.width, this.height);
+        let imageData = new ImageData(this.pixels, this.width_, this.height_);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
         if (filterMode == MyImageFilterMode.NEAREST) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);

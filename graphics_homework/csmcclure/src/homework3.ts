@@ -1,4 +1,4 @@
-    function MyBezier(t: number,
+function MyBezier(t: number,
     P0: Vector3,
     P1: Vector3,
     P2: Vector3,
@@ -40,6 +40,8 @@ class Homework3App {
     missile2Texture: WebGLTexture | null = null;
     ballTexture: WebGLTexture | null = null;
 
+    mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
+
     player1WorldMatrix = new Matrix4();
     player2WorldMatrix = new Matrix4();
     missile1WorldMatrix = new Matrix4();
@@ -65,8 +67,8 @@ class Homework3App {
         width = Math.floor(document.body.clientWidth) | 0;
         height = Math.floor(width * 3.0 / 4.0) | 0;
         this.renderingContext = new RenderingContext(width, height, "app");
-        width = this.renderingContext.width;
-        height = this.renderingContext.height;
+        this.width = this.renderingContext.canvas.width;
+        this.height = this.renderingContext.canvas.height;
         if (!this.renderingContext) {
             throw "Unable to create rendering context.";
         }
@@ -180,8 +182,6 @@ class Homework3App {
 
     private loadScenegraph(): void {
         let gl = this.renderingContext.gl;
-        this.positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
         let v0 = Vector2.make(-1.0, -1.0); // lower left
         let v1 = Vector2.make(1.0, 1.0);   // upper right
@@ -191,7 +191,11 @@ class Homework3App {
             v0.x, v1.y, st0.x, st1.y,
             v0.x, v0.y, st0.x, st0.y,
             v1.x, v1.y, st1.x, st1.y,
-            v1.x, v0.y, st1.x, st0.y];
+            v1.x, v0.y, st1.x, st0.y
+        ];
+
+        this.positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
         gl.bufferData(gl.ARRAY_BUFFER,
             new Float32Array(positionsTexCoords),
@@ -305,7 +309,10 @@ class Homework3App {
         window.requestAnimationFrame((t: number) => {
             self.update();
             self.display();
-            self.displayUI();
+            //self.displayUI();
+            self.draw3DGraphics();
+            self.drawSpriteGraphics();
+            self.drawVectorGraphics();
             self.mainloop(t);
         });
     }
@@ -338,7 +345,7 @@ class Homework3App {
         this.player1WorldMatrix.Translate(dx * speed * this.dt, dy * speed * this.dt, 0.0);
         this.player2WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
 
-        for (let i = 0; i < 1000; i++) {
+        for (let i = 0; i < 10; i++) {
             const x = Math.random() * (this.randomImage.width - 1);
             const y = Math.random() * (this.randomImage.height - 1);
             const color = new MyColor((Math.random() * 255) | 0, (Math.random() * 255) | 0, (Math.random() * 255) | 0, 255);
@@ -351,6 +358,7 @@ class Homework3App {
         let gl = this.renderingContext.gl;
 
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
         const numComponents = 2;
         const type = gl.FLOAT;
@@ -391,13 +399,22 @@ class Homework3App {
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
 
-        const fieldOfView = 45;// * Math.PI / 180;
+    private draw3DGraphics() {
+        let gl = this.renderingContext.gl;
+
+        const fieldOfView = 45;
         const aspect = this.renderingContext.aspectRatio;
         const zNear = 0.1;
         const zFar = 100.0;
         const projectionMatrix = Matrix4.makePerspectiveY(fieldOfView, aspect, zNear, zFar);
-        const modelViewMatrix = Matrix4.makeTranslation(0.0, 0.0, -6.0).MultMatrix(this.player1WorldMatrix);
+        const rotX = Matrix4.makeRotation(this.t0 * 30.0, 1.0, 0.0, 0.0);
+        const rotY = Matrix4.makeRotation(this.t0 * 30.0, 0.0, 1.0, 0.0);
+        const rotZ = Matrix4.makeRotation(this.t0 * 30.0, 0.0, 0.0, 1.0);
+        const translationMatrix = Matrix4.makeTranslation(0, 0, -6);
+        const rotationMatrix = Matrix4.multiply3(rotX, rotY, rotZ);
+        const modelViewMatrix = Matrix4.multiply(translationMatrix, rotationMatrix);
 
         this.randomTexture = this.randomImage.createTexture(gl, MyImageRepeatMode.MIRRORED_REPEAT, MyImageFilterMode.NEAREST);
         if (this.randomTexture) {
@@ -405,16 +422,7 @@ class Homework3App {
             gl.bindTexture(gl.TEXTURE_2D, this.randomTexture);
         }
 
-        // set default color to white
-        if (this.aColorLocation >= 0) {
-            gl.vertexAttrib4f(this.aColorLocation, 1.0, 1.0, 1.0, 1.0);
-        }
-
-        // set up vertex array
-        if (this.positionBuffer) {
-            this.setupVertexArray(this.positionBuffer);
-        }
-
+        // configure shader program
         gl.useProgram(this.shaderProgram);
         if (this.uProjectionMatrixLocation)
             gl.uniformMatrix4fv(this.uProjectionMatrixLocation, false, projectionMatrix.toColMajorArray());
@@ -424,18 +432,23 @@ class Homework3App {
             gl.uniformMatrix4fv(this.uTextureMatrix, false, this.randomTextureMatrix.toColMajorArray());
         if (this.uTextureMapLocation)
             gl.uniform1i(this.uTextureMapLocation, 0);
-        {
+
+        // set up vertex array
+        if (this.positionBuffer) {
+            this.setupVertexArray(this.positionBuffer);
             let offset = 0;
             let vertexCount = 4;
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
         }
     }
 
-    private displayUI() {
+    private drawSpriteGraphics() {
         let gl = this.renderingContext.gl;
 
         // Don't try to run this function if we do not have a sprite sheet
         if (!this.spriteSheetTexture) return;
+
+        gl.enable(gl.BLEND);
 
         const projectionMatrix = Matrix4.makeOrtho2D(0, this.renderingContext.width, this.renderingContext.height, 0);
         const modelViewMatrix = Matrix4.makeTranslation(50, 50, 0);
@@ -474,7 +487,10 @@ class Homework3App {
         if (this.spriteBuffer) {
             this.setupVertexArray(this.spriteBuffer);
         }
-        gl.bindTexture(gl.TEXTURE_2D, this.spriteTexture);
+        if (this.mySprites.loaded) {
+            let index = (this.t0 | 0) % this.mySprites.textures.length;
+            this.mySprites.useTexture(gl, index);
+        }
         if (this.uModelViewMatrixLocation)
             gl.uniformMatrix4fv(this.uModelViewMatrixLocation, false, this.player2WorldMatrix.toColMajorArray());
         {
@@ -482,43 +498,111 @@ class Homework3App {
             let vertexCount = 4;
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
         }
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.useProgram(null);
+        gl.disable(gl.BLEND);
+    }
+
+    drawVectorGraphics() {
+        let gl = this.renderingContext.gl;
+
+        const projectionMatrix = Matrix4.makeOrtho2D(0, this.renderingContext.width, this.renderingContext.height, 0);
+        const modelViewMatrix = Matrix4.makeTranslation(0, 0, 0);
+        const textureMatrix = Matrix4.makeIdentity();
+
+        // First set up our vertex and fragment shader program
+        gl.useProgram(this.shaderProgram);
+        if (this.uProjectionMatrixLocation)
+            gl.uniformMatrix4fv(this.uProjectionMatrixLocation, false, projectionMatrix.toColMajorArray());
+        if (this.uModelViewMatrixLocation)
+            gl.uniformMatrix4fv(this.uModelViewMatrixLocation, false, modelViewMatrix.toColMajorArray());
+        if (this.uTextureMatrix)
+            gl.uniformMatrix4fv(this.uTextureMatrix, false, textureMatrix.toColMajorArray());
+        if (this.uTextureMapLocation)
+            gl.uniform1i(this.uTextureMapLocation, 0);
+        gl.bindTexture(gl.TEXTURE_2D, this.whiteTexture);
 
         let sine = 0.5 + 0.5 * Math.sin(this.t1);
-        // Try the new display list out
-        gl.bindTexture(gl.TEXTURE_2D, this.whiteTexture);
-        let displayList = new MyDisplayList();
-        displayList.newSurface(gl.LINES);
-        displayList.color(1.0, 0.0, 0.0);
-        displayList.vertex(0, (1.0 - sine) * this.height, 0);
-        displayList.vertex(this.width, sine * this.height, 0);
 
-        displayList.newSurface(gl.LINE_STRIP);
-        displayList.color(1.0, 1.0, 0.0);
+        // Bezier curve points
         const x = 0;
-        const y = 0;
+        const y = 0.5 * this.height;
         const w = this.width;
-        const h = this.height;
-        const P0 = Vector3.make(x, y, 0);
-        const P1 = Vector3.make(x, (1.0 - sine) * h, 0);
-        const P2 = Vector3.make(0.25 * w, sine * h, 0);
-        const P3 = Vector3.make(0.5 * w, 0.5 * h, 0);
-        const P4 = Vector3.make(0.5 * w, sine * h, 0);
-        const P5 = Vector3.make(0.75 * w, (1 - sine) * h, 0);;
-        const P6 = Vector3.make(w, h, 0);
-        {
-            for (let t = 0.0; t <= 1.01; t += 0.01) {
-                let P = MyBezier(t, P0, P1, P2, P3);
-                displayList.vertex(P.x, P.y, P.z);
-            }
+        const h = this.height * 0.5;
+        const P0 = Vector3.make(x, y + sine * h, 0);
+        const P1 = Vector3.make(x + 0.12 * w, y + (1.0 - sine) * h, 0);
+        const P2 = Vector3.make(x + 0.37 * w, y + sine * h, 0);
+        const P3 = Vector3.make(x + 0.5 * w, y + 0.5 * h, 0);
+        let P4 = Vector3.make(x + 0.67 * w, y + 2.0 * sine * h, 0);
+        const P5 = Vector3.make(x + 0.87 * w, y + 2.0 * (1 - sine) * h, 0);
+        const P6 = Vector3.make(x + w, y + sine * h, 0);
+        //P4 = Vector3.sub(P3, P2).add(P3);
+
+        // Try the new display list out
+        let shape = new MyShape();
+
+        // Draw a line
+        shape.newSurface(gl.LINES);
+        shape.color(1.0, 0.0, 0.0);
+        shape.vertex(0, (1 - sine) * h, 0);
+        shape.vertex(w, sine * h, 0);
+
+        // Followed by a Bezier curve
+        shape.newSurface(gl.LINE_STRIP);
+        shape.color(1.0, 1.0, 0.0);
+        for (let t = 0.0; t <= 1.01; t += 0.01) {
+            let P = MyBezier(t, P0, P1, P2, P3);
+            shape.vertex(P.x, P.y, P.z);
         }
-        displayList.newSurface(gl.LINE_STRIP);
-        displayList.color(0.0, 1.0, 1.0);
-        {
-            for (let t = 0.0; t <= 1.01; t += 0.01) {
-                let P = MyBezier(t, P3, P4, P5, P6);
-                displayList.vertex(P.x, P.y, P.z);
-            }
+
+        // Followed by another Bezier curve
+        shape.newSurface(gl.LINE_STRIP);
+        shape.color(0.0, 1.0, 1.0);
+        for (let t = 0.0; t <= 1.01; t += 0.01) {
+            let P = MyBezier(t, P3, P4, P5, P6);
+            shape.vertex(P.x, P.y, P.z);
         }
-        displayList.draw(gl, this.aVertexLocation, this.aColorLocation, this.aTexCoordLocation);
+
+        shape.newSurface(gl.TRIANGLE_STRIP);
+        shape.color(0.2, 0.2, 0.2);
+        for (let t = 0.0; t <= 1.01; t += 0.01) {
+            let P = MyBezier(t, P0, P1, P2, P3);
+            shape.vertex(P.x, P.y, P.z);
+            shape.vertex(P.x, y + h, 0);
+        }
+        for (let t = 0.0; t <= 1.01; t += 0.01) {
+            let P = MyBezier(t, P3, P4, P5, P6);
+            shape.vertex(P.x, P.y, P.z);
+            shape.vertex(P.x, y + h, 0);
+        }
+
+        // Followed by the control points
+        shape.newSurface(gl.LINE_STRIP);
+        shape.color(1.0, 1.0, 1.0);
+        shape.vertex(P0.x, P0.y, P0.z);
+        shape.vertex(P1.x, P1.y, P1.z);
+        shape.vertex(P2.x, P2.y, P2.z);
+        shape.vertex(P3.x, P3.y, P3.z);
+        shape.vertex(P4.x, P4.y, P4.z);
+        shape.vertex(P5.x, P5.y, P5.z);
+        shape.vertex(P6.x, P6.y, P6.z);
+
+        // Followed by a triangle
+        const xo = 0.5 * w;
+        const yo = 0.7 * h;
+        shape.newSurface(gl.TRIANGLES);
+        shape.color(1.0, 0.0, 1.0);
+        shape.vertex(xo + 0.25 * w, yo + 0, 0);
+        shape.vertex(xo + 0.15 * w, yo + 0.25 * h, 0);
+        shape.vertex(xo + 0.35 * w, yo + 0.25 * h, 0);
+
+        shape.draw(gl, this.aVertexLocation, this.aColorLocation, this.aTexCoordLocation);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.useProgram(null);
     }
 }
