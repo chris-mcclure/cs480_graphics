@@ -7,8 +7,9 @@ class MyImageArray {
     subImages: MyImage[] = [];
     textures: WebGLTexture[] | null[] = [];
 
-    loaded_: boolean = false;
+    private loaded_: boolean = false;
     get loaded(): boolean { return this.loaded_; }
+    get length(): number { return this.subImages.length; }
 
     constructor(public url: string, readonly subImageWidth: number, readonly subImageHeight: number) {
         subImageWidth = subImageWidth | 0;

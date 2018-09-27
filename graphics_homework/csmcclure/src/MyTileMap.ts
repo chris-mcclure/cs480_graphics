@@ -32,15 +32,17 @@ class MyTileMap {
     }
 
     resize(numCols: number, numRows: number) {
+        this.width = numCols;
+        this.height = numRows;
         this.tileData = [];
         this.tileData.length = numCols * numRows;
-        for (let t of this.tileData) {
-            t = -1;
+        for (let i = 0; i < this.tileData.length; i++) {
+            this.tileData[i] = -1;
         }
     }
 
     setTile(col: number, row: number, tileId: number) {
-        if (col < 0 || row < 0 || col >= this.width || row >= this.height) return -1;
+        if (col < 0 || row < 0 || col >= this.width || row >= this.height) return;
         const addr = row * this.width + col;
         this.tileData[addr] = tileId;
     }

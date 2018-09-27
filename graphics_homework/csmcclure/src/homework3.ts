@@ -40,8 +40,8 @@ class Homework3App {
     missile2Texture: WebGLTexture | null = null;
     ballTexture: WebGLTexture | null = null;
 
-    mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
-
+    //mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
+    mySprites: MyImageArray = new MyImageArray(".../assets/hockeyspritesheet.png",8,8);
     player1WorldMatrix = new Matrix4();
     player2WorldMatrix = new Matrix4();
     missile1WorldMatrix = new Matrix4();
@@ -52,7 +52,7 @@ class Homework3App {
     randomImage = new MyImage(64, 64, true);
     randomTexture: WebGLTexture | null = null;
     randomTextureMatrix = new Matrix4();
-    spriteImage = new MyImage(8, 8, true);
+    spriteImage = new MyImage(32, 32, true);
     spriteTexture: WebGLTexture | null = null;
     spriteBuffer: WebGLBuffer | null = null;
     xhrSpriteSheetImage: HTMLImageElement | null = null;
@@ -289,8 +289,8 @@ class Homework3App {
             // Step 3: create the texture
             self.spriteSheetTexture = self.spriteSheetImage.createTexture(gl);
         });
-        this.xhrSpriteSheetImage.src = "../assets/spritesheet.png";
-
+       // this.xhrSpriteSheetImage.src = "../assets/spritesheet.png";
+        this.xhrSpriteSheetImage.src = "../assets/hockeyspritesheet.png";
         // END XHR CODE
     }
 
@@ -323,6 +323,8 @@ class Homework3App {
 
     private update(): void {
         // This is where we would handle user input
+        let gl = this.renderingContext.gl;
+
         let dx = 0;
         let dy = 0;
         const speed = 1;
@@ -345,6 +347,7 @@ class Homework3App {
         this.player1WorldMatrix.Translate(dx * speed * this.dt, dy * speed * this.dt, 0.0);
         this.player2WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
 
+        
         for (let i = 0; i < 10; i++) {
             const x = Math.random() * (this.randomImage.width - 1);
             const y = Math.random() * (this.randomImage.height - 1);
@@ -395,15 +398,18 @@ class Homework3App {
         let gl = this.renderingContext.gl;
         let sine = Math.sin(this.t1);
         gl.clearColor(sine * 0.1, sine * 0.0, sine * 0.05, 1.0);
+        //gl.clearColor(0.0, 0.1, 0.0, 0.5);
+
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.depthFunc(gl.LEQUAL);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
 
+    //rotating background
     private draw3DGraphics() {
         let gl = this.renderingContext.gl;
-
+        
         const fieldOfView = 45;
         const aspect = this.renderingContext.aspectRatio;
         const zNear = 0.1;
@@ -415,12 +421,13 @@ class Homework3App {
         const translationMatrix = Matrix4.makeTranslation(0, 0, -6);
         const rotationMatrix = Matrix4.multiply3(rotX, rotY, rotZ);
         const modelViewMatrix = Matrix4.multiply(translationMatrix, rotationMatrix);
+        
 
         this.randomTexture = this.randomImage.createTexture(gl, MyImageRepeatMode.MIRRORED_REPEAT, MyImageFilterMode.NEAREST);
         if (this.randomTexture) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.randomTexture);
-        }
+        }   
 
         // configure shader program
         gl.useProgram(this.shaderProgram);
@@ -478,12 +485,12 @@ class Homework3App {
         // copy a sprite from the sprite sheet
         MyImage.blit(
             this.spriteSheetImage,
-            8, 8, 8, 8,
+            0, 0, 32, 32,
             this.spriteImage,
-            0, 0, 8, 8
+            0, 0, 32,32
         );
         this.spriteTexture = this.spriteImage.createTexture(gl);
-        this.spriteBuffer = this.createRectVertexBuffer(4 * this.spriteImage.width, 4 * this.spriteImage.height);
+        this.spriteBuffer = this.createRectVertexBuffer(8* this.spriteImage.width, 8 * this.spriteImage.height);
         if (this.spriteBuffer) {
             this.setupVertexArray(this.spriteBuffer);
         }
@@ -531,6 +538,7 @@ class Homework3App {
         const y = 0.5 * this.height;
         const w = this.width;
         const h = this.height * 0.5;
+        
         const P0 = Vector3.make(x, y + sine * h, 0);
         const P1 = Vector3.make(x + 0.12 * w, y + (1.0 - sine) * h, 0);
         const P2 = Vector3.make(x + 0.37 * w, y + sine * h, 0);
@@ -544,12 +552,14 @@ class Homework3App {
         let shape = new MyShape();
 
         // Draw a line
+        
         shape.newSurface(gl.LINES);
         shape.color(1.0, 0.0, 0.0);
         shape.vertex(0, (1 - sine) * h, 0);
         shape.vertex(w, sine * h, 0);
 
         // Followed by a Bezier curve
+        
         shape.newSurface(gl.LINE_STRIP);
         shape.color(1.0, 1.0, 0.0);
         for (let t = 0.0; t <= 1.01; t += 0.01) {
@@ -565,6 +575,7 @@ class Homework3App {
             shape.vertex(P.x, P.y, P.z);
         }
 
+        //surfaces under berzier curves
         shape.newSurface(gl.TRIANGLE_STRIP);
         shape.color(0.2, 0.2, 0.2);
         for (let t = 0.0; t <= 1.01; t += 0.01) {
@@ -577,8 +588,10 @@ class Homework3App {
             shape.vertex(P.x, P.y, P.z);
             shape.vertex(P.x, y + h, 0);
         }
+        
 
         // Followed by the control points
+        
         shape.newSurface(gl.LINE_STRIP);
         shape.color(1.0, 1.0, 1.0);
         shape.vertex(P0.x, P0.y, P0.z);
@@ -597,6 +610,7 @@ class Homework3App {
         shape.vertex(xo + 0.25 * w, yo + 0, 0);
         shape.vertex(xo + 0.15 * w, yo + 0.25 * h, 0);
         shape.vertex(xo + 0.35 * w, yo + 0.25 * h, 0);
+
 
         shape.draw(gl, this.aVertexLocation, this.aColorLocation, this.aTexCoordLocation);
 
