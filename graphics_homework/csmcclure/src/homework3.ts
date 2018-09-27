@@ -279,6 +279,8 @@ class Homework3App {
             console.log("Height: " + img.height);
             canvas.width = img.width;
             canvas.height = img.height;
+            console.log("cWidth: " + canvas.width);
+            console.log("cHeight: " + canvas.height);
             context.drawImage(img, 0, 0);
             let data = context.getImageData(0, 0, img.width, img.height);
 
@@ -417,19 +419,19 @@ class Homework3App {
         const zNear = 0.1;
         const zFar = 100.0;
         const projectionMatrix = Matrix4.makePerspectiveY(fieldOfView, aspect, zNear, zFar);
-        const rotX = Matrix4.makeRotation(this.t0 * 30.0, 1.0, 0.0, 0.0);
+      /*  const rotX = Matrix4.makeRotation(this.t0 * 30.0, 1.0, 0.0, 0.0);
         const rotY = Matrix4.makeRotation(this.t0 * 30.0, 0.0, 1.0, 0.0);
         const rotZ = Matrix4.makeRotation(this.t0 * 30.0, 0.0, 0.0, 1.0);
         const translationMatrix = Matrix4.makeTranslation(0, 0, -6);
-        const rotationMatrix = Matrix4.multiply3(rotX, rotY, rotZ);
-        const modelViewMatrix = Matrix4.multiply(translationMatrix, rotationMatrix);
-        
+        const rotationMatrix = Matrix4.multiply3(rotX, rotY, rotZ);*/
+        //const modelViewMatrix = Matrix4.multiply(translationMatrix, rotationMatrix);
+        const modelViewMatrix = new Matrix4().Translate(-0.0, 0.0, -6.0);
 
-        this.randomTexture = this.randomImage.createTexture(gl, MyImageRepeatMode.MIRRORED_REPEAT, MyImageFilterMode.NEAREST);
+       /* this.randomTexture = this.randomImage.createTexture(gl, MyImageRepeatMode.MIRRORED_REPEAT, MyImageFilterMode.NEAREST);
         if (this.randomTexture) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.randomTexture);
-        }   
+        }   */
 
         // configure shader program
         gl.useProgram(this.shaderProgram);
@@ -460,10 +462,10 @@ class Homework3App {
         gl.enable(gl.BLEND);
 
         const projectionMatrix = Matrix4.makeOrtho2D(0, this.renderingContext.width, this.renderingContext.height, 0);
-        const modelViewMatrix = Matrix4.makeTranslation(50, 50, 0);
+        const modelViewMatrix = Matrix4.makeTranslation(0, -65, 0);
         const textureMatrix = Matrix4.makeIdentity();
 
-        this.spriteSheetBuffer = this.createRectVertexBuffer(4*this.spriteSheetImage.width, 4*this.spriteSheetImage.height);
+        this.spriteSheetBuffer = this.createRectVertexBuffer(5.3*this.spriteSheetImage.width, 5*this.spriteSheetImage.height);
         if (this.spriteSheetBuffer) {
             this.setupVertexArray(this.spriteSheetBuffer);
         }
@@ -485,18 +487,24 @@ class Homework3App {
         }
 
         // copy a sprite from the sprite sheet
-       MyImage.blit(
+    //    MyImage.blit(
+    //         this.spriteSheetImage,
+    //         256,256, 256, 256,
+    //         this.spriteImage,
+    //         0, 0, 32, 32
+    //     );
+        MyImage.blit(
             this.spriteSheetImage,
-            256,256, 256, 256,
+            0,0, 256, 256,
             this.spriteImage,
-            0, 0, 32, 32
+            0, 0, 8, 8
         );
         this.spriteTexture = this.spriteImage.createTexture(gl);
         this.spriteBuffer = this.createRectVertexBuffer(4* this.spriteImage.width, 4 * this.spriteImage.height);
         if (this.spriteBuffer) {
             this.setupVertexArray(this.spriteBuffer);
         }
-        if (this.mySprites.loaded) {
+         if (this.mySprites.loaded) {
             let index = (this.t0 | 0) % this.mySprites.textures.length;
             this.mySprites.useTexture(gl, index);
         }
