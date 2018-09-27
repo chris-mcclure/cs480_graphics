@@ -41,7 +41,7 @@ class Homework3App {
     ballTexture: WebGLTexture | null = null;
 
     //mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
-    mySprites: MyImageArray = new MyImageArray(".../assets/hockeyspritesheet.png",8,8);
+    mySprites: MyImageArray = new MyImageArray("../assets/index.png", 16,16);
     player1WorldMatrix = new Matrix4();
     player2WorldMatrix = new Matrix4();
     missile1WorldMatrix = new Matrix4();
@@ -275,6 +275,8 @@ class Homework3App {
             let context = canvas.getContext("2d");
             if (!context) return;
             let img = self.xhrSpriteSheetImage;
+            console.log("Width: " + img.width);
+            console.log("Height: " + img.height);
             canvas.width = img.width;
             canvas.height = img.height;
             context.drawImage(img, 0, 0);
@@ -290,7 +292,7 @@ class Homework3App {
             self.spriteSheetTexture = self.spriteSheetImage.createTexture(gl);
         });
        // this.xhrSpriteSheetImage.src = "../assets/spritesheet.png";
-        this.xhrSpriteSheetImage.src = "../assets/hockeyspritesheet.png";
+        this.xhrSpriteSheetImage.src = "../assets/index.png";
         // END XHR CODE
     }
 
@@ -461,7 +463,7 @@ class Homework3App {
         const modelViewMatrix = Matrix4.makeTranslation(50, 50, 0);
         const textureMatrix = Matrix4.makeIdentity();
 
-        this.spriteSheetBuffer = this.createRectVertexBuffer(8 * this.spriteSheetImage.width, 8 * this.spriteSheetImage.height);
+        this.spriteSheetBuffer = this.createRectVertexBuffer(4*this.spriteSheetImage.width, 4*this.spriteSheetImage.height);
         if (this.spriteSheetBuffer) {
             this.setupVertexArray(this.spriteSheetBuffer);
         }
@@ -483,14 +485,14 @@ class Homework3App {
         }
 
         // copy a sprite from the sprite sheet
-        MyImage.blit(
+       MyImage.blit(
             this.spriteSheetImage,
-            0, 0, 32, 32,
+            256,256, 256, 256,
             this.spriteImage,
-            0, 0, 32,32
+            0, 0, 32, 32
         );
         this.spriteTexture = this.spriteImage.createTexture(gl);
-        this.spriteBuffer = this.createRectVertexBuffer(8* this.spriteImage.width, 8 * this.spriteImage.height);
+        this.spriteBuffer = this.createRectVertexBuffer(4* this.spriteImage.width, 4 * this.spriteImage.height);
         if (this.spriteBuffer) {
             this.setupVertexArray(this.spriteBuffer);
         }
@@ -552,7 +554,7 @@ class Homework3App {
         let shape = new MyShape();
 
         // Draw a line
-        
+      /*  
         shape.newSurface(gl.LINES);
         shape.color(1.0, 0.0, 0.0);
         shape.vertex(0, (1 - sine) * h, 0);
@@ -610,7 +612,7 @@ class Homework3App {
         shape.vertex(xo + 0.25 * w, yo + 0, 0);
         shape.vertex(xo + 0.15 * w, yo + 0.25 * h, 0);
         shape.vertex(xo + 0.35 * w, yo + 0.25 * h, 0);
-
+*/
 
         shape.draw(gl, this.aVertexLocation, this.aColorLocation, this.aTexCoordLocation);
 
