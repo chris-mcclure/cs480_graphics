@@ -22,6 +22,7 @@ class Homework3App {
     t0 = 0;
     t1 = 0;
     dt = 0;
+    totalDistance = 0;
     uiUpdateTime = 0;
 
     shaderProgram: null | WebGLProgram = null;
@@ -40,8 +41,9 @@ class Homework3App {
     missile2Texture: WebGLTexture | null = null;
     ballTexture: WebGLTexture | null = null;
 
-    //mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
+    // mySprites: MyImageArray = new MyImageArray("../assets/spritesheet.png", 8, 8);
     mySprites: MyImageArray = new MyImageArray("../assets/index.png", 16,16);
+    puckSprite: MyImageArray = new MyImageArray("../assets/index.png", 16, 16);
     player1WorldMatrix = new Matrix4();
     player2WorldMatrix = new Matrix4();
     missile1WorldMatrix = new Matrix4();
@@ -53,14 +55,19 @@ class Homework3App {
     randomTexture: WebGLTexture | null = null;
     randomTextureMatrix = new Matrix4();
     spriteImage = new MyImage(32, 32, true);
+    puckSpriteImage = new MyImage(32, 32, true);
     spriteTexture: WebGLTexture | null = null;
+    puckSpriteTexture: WebGLTexture | null = null;
     spriteBuffer: WebGLBuffer | null = null;
+    puckSpriteBuffer : WebGLBuffer | null = null;
     xhrSpriteSheetImage: HTMLImageElement | null = null;
     spriteSheetImage = new MyImage(0, 0, true);
     spriteSheetTexture: WebGLTexture | null = null;
     spriteSheetBuffer: WebGLBuffer | null = null;
 
     keysPressed: Map<string, boolean> = new Map<string, boolean>();
+    keysReleased: Map<string, boolean> = new Map<string, boolean>();
+
 
     constructor(public width: number = 512, public height: number = 384) {
         hflog.logElement = "log";
@@ -73,6 +80,10 @@ class Homework3App {
             throw "Unable to create rendering context.";
         }
         this.scenegraph = new Scenegraph(this.renderingContext);
+        this.player1WorldMatrix.Translate(this.width/2, this.height/2 - 50, 0);
+        this.player2WorldMatrix.Translate(this.width/2, this.height/2 - 50, 0);
+        this.ballWorldMatrix.Translate(this.width/2 -125, this.height/2, 0);
+
     }
 
     run(): void {
@@ -100,11 +111,13 @@ class Homework3App {
         document.onkeydown = (e) => {
             e.preventDefault();
             self.keysPressed.set(e.key, true);
+            self.keysReleased.set(e.key, false);
         };
 
         document.onkeyup = (e) => {
             e.preventDefault();
             self.keysPressed.set(e.key, false);
+            self.keysReleased.set(e.key, true);
         };
     }
 
@@ -293,7 +306,6 @@ class Homework3App {
             // Step 3: create the texture
             self.spriteSheetTexture = self.spriteSheetImage.createTexture(gl);
         });
-       // this.xhrSpriteSheetImage.src = "../assets/spritesheet.png";
         this.xhrSpriteSheetImage.src = "../assets/index.png";
         // END XHR CODE
     }
@@ -333,32 +345,35 @@ class Homework3App {
         let dy = 0;
         const speed = 1;
         if (this.keysPressed.get("Left") || this.keysPressed.get("ArrowLeft")) {
-            dx -= 1.0;
+            dx -= 10.0;
         }
         if (this.keysPressed.get("Right") || this.keysPressed.get("ArrowRight")) {
-            dx += 1.0;
+            dx += 10.0;
         }
         if (this.keysPressed.get("Up") || this.keysPressed.get("ArrowUp")) {
-            dy -= 1.0;
+            dy -= 10.0;
         }
         if (this.keysPressed.get("Down") || this.keysPressed.get("ArrowDown")) {
-            dy += 1.0;
+            dy += 10.0;
         }
         if (this.keysPressed.get("r") || this.keysPressed.get("R")) {
             this.player1WorldMatrix.LoadIdentity();
             this.player2WorldMatrix.LoadIdentity();
+            this.ballWorldMatrix.LoadIdentity();
         }
-        this.player1WorldMatrix.Translate(dx * speed * this.dt, dy * speed * this.dt, 0.0);
+        this.player1WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
         this.player2WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
+        this.ballWorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
+        
 
         
-        for (let i = 0; i < 10; i++) {
+       /* for (let i = 0; i < 10; i++) {
             const x = Math.random() * (this.randomImage.width - 1);
             const y = Math.random() * (this.randomImage.height - 1);
             const color = new MyColor((Math.random() * 255) | 0, (Math.random() * 255) | 0, (Math.random() * 255) | 0, 255);
             this.randomImage.setPixel(x | 0, y | 0, color);
         }
-        this.randomTextureMatrix.Rotate(this.dt * 20.0, 0.0, 0.0, 1.0);
+        this.randomTextureMatrix.Rotate(this.dt * 20.0, 0.0, 0.0, 1.0);*/
     }
 
     private setupVertexArray(vertexBuffer: WebGLBuffer) {
@@ -486,35 +501,80 @@ class Homework3App {
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
         }
 
-        // copy a sprite from the sprite sheet
-    //    MyImage.blit(
-    //         this.spriteSheetImage,
-    //         256,256, 256, 256,
-    //         this.spriteImage,
-    //         0, 0, 32, 32
-    //     );
+        //shooter blit
         MyImage.blit(
             this.spriteSheetImage,
             0,0, 256, 256,
             this.spriteImage,
             0, 0, 8, 8
         );
+
+        //puck blit
+        MyImage.blit(
+            this.spriteSheetImage,
+            0,0, 256, 256,
+            this.puckSpriteImage,
+            0, 0, 8, 8
+        );
+
         this.spriteTexture = this.spriteImage.createTexture(gl);
+        this.puckSpriteTexture = this.puckSpriteImage.createTexture(gl);
+
         this.spriteBuffer = this.createRectVertexBuffer(4* this.spriteImage.width, 4 * this.spriteImage.height);
+        this.puckSpriteBuffer = this.createRectVertexBuffer(4 * this.puckSpriteImage.width, 4*this.puckSpriteImage.height);
+
         if (this.spriteBuffer) {
             this.setupVertexArray(this.spriteBuffer);
         }
-         if (this.mySprites.loaded) {
-            let index = (this.t0 | 0) % this.mySprites.textures.length;
-            this.mySprites.useTexture(gl, index);
+        if (this.puckSpriteBuffer){
+            this.setupVertexArray(this.puckSpriteBuffer);
         }
-        if (this.uModelViewMatrixLocation)
+
+        //handle shooter textures
+        if(this.mySprites.loaded){
+            this.mySprites.useTexture(gl, 8);
+            if(this.keysPressed.get(" ")){
+                this.mySprites.useTexture(gl, 9);   
+            }
+            // if(this.keysReleased.get(" ")){
+            //     this.puckSprite.useTexture(gl, 12);
+            //     // this.ballWorldMatrix.Translate(-10, 0, 0);
+            // } 
+        }
+
+        if (this.uModelViewMatrixLocation){
             gl.uniformMatrix4fv(this.uModelViewMatrixLocation, false, this.player2WorldMatrix.toColMajorArray());
+        }
         {
             let offset = 0;
             let vertexCount = 4;
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
         }
+
+        //handle the puck movement
+        if(this.puckSprite.loaded){
+            this.puckSprite.useTexture(gl, 12);
+            if(this.keysReleased.get(" ")){
+                this.ballWorldMatrix.Translate(-10, 0, 0);
+                this.totalDistance -= 10;
+                console.log("puck traveled: " + this.totalDistance);
+                if(this.totalDistance == -600){
+                    this.ballWorldMatrix.LoadIdentity();
+                    this.ballWorldMatrix.Translate(this.width/2 -125, this.height/2, 0);
+                    this.totalDistance =0;
+                }
+            }
+        }
+
+        if (this.uModelViewMatrixLocation){
+            gl.uniformMatrix4fv(this.uModelViewMatrixLocation, false, this.ballWorldMatrix.toColMajorArray());
+        }
+        {
+            let offset = 0;
+            let vertexCount = 4;
+            gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+        }
+
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.bindTexture(gl.TEXTURE_2D, null);
