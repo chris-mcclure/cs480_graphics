@@ -22,8 +22,13 @@ class Homework3App {
     t0 = 0;
     t1 = 0;
     dt = 0;
+    flag = false;
     totalDistance = 0;
     uiUpdateTime = 0;
+
+    puckPos: Vector2;
+    playerPos: Vector2;
+
 
     shaderProgram: null | WebGLProgram = null;
     aVertexLocation = -1;
@@ -79,11 +84,12 @@ class Homework3App {
         if (!this.renderingContext) {
             throw "Unable to create rendering context.";
         }
+        this.puckPos = new Vector2(this.width/2-125, this.height/2);
+        this.playerPos = new Vector2(this.width/2, this.height/2-50);
         this.scenegraph = new Scenegraph(this.renderingContext);
-        this.player1WorldMatrix.Translate(this.width/2, this.height/2 - 50, 0);
-        this.player2WorldMatrix.Translate(this.width/2, this.height/2 - 50, 0);
-        this.ballWorldMatrix.Translate(this.width/2 -125, this.height/2, 0);
-
+        this.player1WorldMatrix.Translate(this.playerPos.x, this.playerPos.y, 0);//this.width/2, this.height/2 - 50, 0);
+        this.player2WorldMatrix.Translate(this.playerPos.x, this.playerPos.y, 0);//this.width/2, this.height/2 - 50, 0);
+        this.ballWorldMatrix.Translate(this.puckPos.x, this.puckPos.y, 0);//this.width/2 -125, this.height/2, 0);
     }
 
     run(): void {
@@ -340,40 +346,54 @@ class Homework3App {
     private update(): void {
         // This is where we would handle user input
         let gl = this.renderingContext.gl;
-
         let dx = 0;
         let dy = 0;
         const speed = 1;
+
         if (this.keysPressed.get("Left") || this.keysPressed.get("ArrowLeft")) {
             dx -= 10.0;
+            this.playerPos.x += dx;
+            this.puckPos.x +=dx;
+            console.log("playerPosX: " + this.playerPos.x);
+            console.log("playerPosY: " + this.playerPos.y);
         }
         if (this.keysPressed.get("Right") || this.keysPressed.get("ArrowRight")) {
-            dx += 10.0;
+            dx += 10.0
+            this.playerPos.x += dx;
+            this.puckPos.x += dx;
+            console.log("playerPosX: " + this.playerPos.x);
+            console.log("playerPosY: " + this.playerPos.y);
+
         }
         if (this.keysPressed.get("Up") || this.keysPressed.get("ArrowUp")) {
-            dy -= 10.0;
+            dy -= 10.0
+            this.playerPos.y += dy;
+            this.puckPos.y += dy;
+            console.log("playerPosX: " + this.playerPos.x);
+            console.log("playerPosY: " + this.playerPos.y);
+
         }
         if (this.keysPressed.get("Down") || this.keysPressed.get("ArrowDown")) {
-            dy += 10.0;
+            dy += 10.0
+            this.playerPos.y += dy;
+            this.puckPos.y += dy;
+            console.log("playerPosX: " + this.playerPos.x);
+            console.log("playerPosY: " + this.playerPos.y);
+
         }
         if (this.keysPressed.get("r") || this.keysPressed.get("R")) {
             this.player1WorldMatrix.LoadIdentity();
+            this.player1WorldMatrix.Translate(this.width/2, this.height/2-50, 0);
             this.player2WorldMatrix.LoadIdentity();
+            this.player2WorldMatrix.Translate(this.width/2, this.height/2-50, 0);
             this.ballWorldMatrix.LoadIdentity();
+            this.ballWorldMatrix.Translate(this.width/2-125, this.height/2, 0);
+            
         }
         this.player1WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
         this.player2WorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
         this.ballWorldMatrix.Translate(dx * 8 * speed * this.dt, dy * 8 * speed * this.dt, 0.0);
-        
 
-        
-       /* for (let i = 0; i < 10; i++) {
-            const x = Math.random() * (this.randomImage.width - 1);
-            const y = Math.random() * (this.randomImage.height - 1);
-            const color = new MyColor((Math.random() * 255) | 0, (Math.random() * 255) | 0, (Math.random() * 255) | 0, 255);
-            this.randomImage.setPixel(x | 0, y | 0, color);
-        }
-        this.randomTextureMatrix.Rotate(this.dt * 20.0, 0.0, 0.0, 1.0);*/
     }
 
     private setupVertexArray(vertexBuffer: WebGLBuffer) {
@@ -534,12 +554,9 @@ class Homework3App {
         if(this.mySprites.loaded){
             this.mySprites.useTexture(gl, 8);
             if(this.keysPressed.get(" ")){
+                this.flag = true;
                 this.mySprites.useTexture(gl, 9);   
             }
-            // if(this.keysReleased.get(" ")){
-            //     this.puckSprite.useTexture(gl, 12);
-            //     // this.ballWorldMatrix.Translate(-10, 0, 0);
-            // } 
         }
 
         if (this.uModelViewMatrixLocation){
@@ -554,14 +571,17 @@ class Homework3App {
         //handle the puck movement
         if(this.puckSprite.loaded){
             this.puckSprite.useTexture(gl, 12);
-            if(this.keysReleased.get(" ")){
+            if(this.keysReleased.get(" ") && this.flag){
                 this.ballWorldMatrix.Translate(-10, 0, 0);
                 this.totalDistance -= 10;
                 console.log("puck traveled: " + this.totalDistance);
-                if(this.totalDistance == -600){
-                    this.ballWorldMatrix.LoadIdentity();
-                    this.ballWorldMatrix.Translate(this.width/2 -125, this.height/2, 0);
+                console.log("puck posX: " + this.puckPos.x);
+                console.log("puck posY: " + this.puckPos.y);
+                if(this.totalDistance == -600){ //stop the puck from moving after it's left the canvas 
                     this.totalDistance =0;
+                //    this.ballWorldMatrix.LoadIdentity();
+                //    this.ballWorldMatrix.Translate(this.playerPos.x, this.playerPos.y, 0);
+                    this.flag = false;
                 }
             }
         }
